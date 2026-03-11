@@ -32,7 +32,7 @@ The LLM cannot reference data it hasn't received. If signals are thin, the brief
 
 Even with strong prompting and tool gating, an LLM can produce generic output. The confidence gate (`score_email()` function in `orchestrator.py`) enforces the zero-template policy at the code level with a measurable score:
 
-1. It extracts meaningful keywords (>4 characters) from each non-None signal field.
+1. It extracts meaningful keywords (>3 characters, i.e. 4+ chars) from each non-None signal field (up to 8 keywords per signal).
 2. It counts how many of those keywords appear in the generated email body.
 3. It produces a 0-100 score with a 1.5x multiplier.
 

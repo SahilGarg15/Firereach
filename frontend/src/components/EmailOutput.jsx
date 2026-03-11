@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const API_BASE = import.meta.env.VITE_API_BASE || ''
+
 /**
  * EmailOutput — Two modes based on confidence gate outcome.
  * Auto-sent: Green score badge, subject, body, sent timestamp.
@@ -49,7 +51,7 @@ export default function EmailOutput({ emailData, reviewData, runId, onConfirmSen
       setConfirming(true)
       setConfirmError(null)
       try {
-        const resp = await fetch(`/api/v1/run/${runId}/confirm-send`, {
+        const resp = await fetch(`${API_BASE}/api/v1/run/${runId}/confirm-send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
