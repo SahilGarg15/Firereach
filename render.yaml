@@ -10,10 +10,10 @@ services:
         sync: false
       - key: SERP_API_KEY
         sync: false
-      - key: GMAIL_USER
+      - key: RESEND_API_KEY
         sync: false
-      - key: GMAIL_APP_PASSWORD
-        sync: false
+      - key: RESEND_FROM
+        value: "FireReach <onboarding@resend.dev>"
       - key: MOCK_MODE
         value: "false"
       - key: ALLOWED_ORIGINS

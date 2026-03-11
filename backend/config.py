@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     # Required — startup fails if missing
     GROQ_API_KEY: str = Field(..., description="Groq API key for LLM calls")
     SERP_API_KEY: str = Field(..., description="SerpAPI key for signal harvesting")
-    GMAIL_USER: str = Field(..., description="Gmail address for sending outreach")
-    GMAIL_APP_PASSWORD: str = Field(..., description="Gmail 16-char app password")
+    RESEND_API_KEY: str = Field(..., description="Resend API key for sending outreach emails")
+    RESEND_FROM: str = Field(default="FireReach <onboarding@resend.dev>", description="Resend verified sender address")
 
     # Optional — sensible defaults
     ALLOWED_ORIGINS: str = Field(

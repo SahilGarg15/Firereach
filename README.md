@@ -14,7 +14,7 @@ FireReach is an AI-powered outreach engine that harvests live buyer-intent signa
 | **Backend** | FastAPI 0.111.0, Python 3.11, Uvicorn 0.29.0 |
 | **Validation** | Pydantic Settings 2.2.1 |
 | **HTTP Client** | httpx 0.27.0 (async) |
-| **Email** | aiosmtplib 3.0.1 (Gmail SMTP) |
+| **Email** | Resend API (httpx) |
 | **Rate Limiting** | slowapi 0.1.9 |
 | **Signals** | SerpAPI (free tier — 100 queries/month) |
 | **Frontend** | React 18, TailwindCSS, Vite, plain JSX |
@@ -36,13 +36,11 @@ FireReach is an AI-powered outreach engine that harvests live buyer-intent signa
 3. Go to Dashboard → API Key
 4. Copy the key to your `.env` file as `SERP_API_KEY`
 
-### Gmail App Password
-1. Go to [Google Account → Security](https://myaccount.google.com/security)
-2. Enable 2-Factor Authentication (required)
-3. Go to **2-Step Verification → App passwords**
-4. Generate a new app password (select "Mail" and your device)
-5. Copy the 16-character password to your `.env` file as `GMAIL_APP_PASSWORD`
-6. Set `GMAIL_USER` to your Gmail address
+### Resend API Key
+1. Sign up at [resend.com](https://resend.com)
+2. Go to API Keys and create a new key
+3. Copy the key to your `.env` file as `RESEND_API_KEY`
+4. Set `RESEND_FROM` to a verified sender address (default: `FireReach <onboarding@resend.dev>`)
 
 ---
 
@@ -116,7 +114,7 @@ This is ideal for development, testing, and demos.
    - **Root Directory:** `backend`
    - **Build Command:** `pip install -r requirements.txt`
    - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Add environment variables: `GROQ_API_KEY`, `SERP_API_KEY`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `ALLOWED_ORIGINS` (set to your Vercel URL), `MOCK_MODE=false`
+4. Add environment variables: `GROQ_API_KEY`, `SERP_API_KEY`, `RESEND_API_KEY`, `RESEND_FROM`, `ALLOWED_ORIGINS` (set to your Vercel URL), `MOCK_MODE=false`
 
 ### Frontend → Vercel
 
@@ -146,7 +144,7 @@ firereach/
 │   ├── adapters/
 │   │   ├── signal_adapter.py   # SerpAPI integration
 │   │   ├── llm_adapter.py      # Groq SDK wrapper
-│   │   └── mail_adapter.py     # Gmail SMTP via aiosmtplib
+│   │   └── mail_adapter.py     # Resend API for email delivery
 │   ├── routers/
 │   │   └── run.py              # All HTTP routes
 │   └── requirements.txt

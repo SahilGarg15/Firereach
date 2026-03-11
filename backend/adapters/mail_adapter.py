@@ -1,5 +1,5 @@
 """
-Mail Adapter — Gmail SMTP via aiosmtplib.
+Mail Adapter — Resend API for transactional email.
 All email sending logic lives here. Swapping providers = one file change.
 """
 
@@ -7,18 +7,16 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from email.message import EmailMessage
 from uuid import uuid4
 
-import aiosmtplib
+import httpx
 
 from config import settings
 from models import EmailAuthFailedError, EmailSendFailedError
 
 logger = logging.getLogger(__name__)
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
+RESEND_API_URL = "https://api.resend.com/emails"
 
 
 async def send(
@@ -27,9 +25,9 @@ async def send(
     body: str,
 ) -> dict[str, str]:
     """
-    Send an email via Gmail SMTP.
+    Send an email via Resend API.
     Returns { sent_at: str, message_id: str }.
-    In MOCK_MODE, simulates sending without SMTP connection.
+    In MOCK_MODE, simulates sending without any external call.
     """
     if settings.MOCK_MODE:
         message_id = f"<mock-{uuid4()}@firereach.local>"
@@ -37,32 +35,37 @@ async def send(
         logger.info("MOCK_MODE: simulated email send to %s", recipient)
         return {"sent_at": sent_at, "message_id": message_id}
 
-    msg = EmailMessage()
-    msg["From"] = settings.GMAIL_USER
-    msg["To"] = recipient
-    msg["Subject"] = subject
-    msg.set_content(body)
-
-    message_id = f"<{uuid4()}@firereach.local>"
-    msg["Message-ID"] = message_id
-
     try:
-        await aiosmtplib.send(
-            msg,
-            hostname=SMTP_HOST,
-            port=SMTP_PORT,
-            start_tls=True,
-            username=settings.GMAIL_USER,
-            password=settings.GMAIL_APP_PASSWORD,
-            timeout=30,
-        )
-    except aiosmtplib.SMTPAuthenticationError as exc:
-        logger.error("SMTP auth failed: %s", exc)
-        raise EmailAuthFailedError() from exc
-    except (aiosmtplib.SMTPException, OSError) as exc:
-        logger.error("SMTP send failed: %s", exc)
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                RESEND_API_URL,
+                headers={
+                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": settings.RESEND_FROM,
+                    "to": [recipient],
+                    "subject": subject,
+                    "text": body,
+                },
+                timeout=30,
+            )
+
+        if resp.status_code == 403:
+            logger.error("Resend auth failed: %s", resp.text)
+            raise EmailAuthFailedError()
+        if resp.status_code != 200:
+            logger.error("Resend send failed (%d): %s", resp.status_code, resp.text)
+            raise EmailSendFailedError(email_body=body)
+
+        data = resp.json()
+        message_id = data.get("id", f"<{uuid4()}@resend>")
+
+    except (httpx.TimeoutException, httpx.ConnectError, OSError) as exc:
+        logger.error("Resend API error: %s", exc)
         raise EmailSendFailedError(email_body=body) from exc
 
     sent_at = datetime.now(timezone.utc).isoformat()
-    logger.info("Email sent to %s, message_id=%s", recipient, message_id)
+    logger.info("Email sent to %s via Resend, id=%s", recipient, message_id)
     return {"sent_at": sent_at, "message_id": message_id}
