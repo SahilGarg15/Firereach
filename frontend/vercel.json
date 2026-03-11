@@ -3,6 +3,9 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://firereach-api.onrender.com/api/:path*"
+    }
   ]
 }
