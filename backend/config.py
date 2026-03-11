@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     # Required — startup fails if missing
     GROQ_API_KEY: str = Field(..., description="Groq API key for LLM calls")
     SERP_API_KEY: str = Field(..., description="SerpAPI key for signal harvesting")
-    RESEND_API_KEY: str = Field(..., description="Resend API key for sending outreach emails")
-    RESEND_FROM: str = Field(default="FireReach <onboarding@resend.dev>", description="Resend verified sender address")
+    SENDGRID_API_KEY: str = Field(..., description="SendGrid API key for sending outreach emails")
+    SENDGRID_FROM: str = Field(default="gargsahil156@gmail.com", description="Verified sender email address")
 
     # Optional — sensible defaults
     ALLOWED_ORIGINS: str = Field(

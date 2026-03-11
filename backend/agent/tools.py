@@ -58,7 +58,7 @@ TOOL_OUTREACH_AUTOMATED_SENDER = {
         "description": (
             "Transforms the account brief into a hyper-personalized outreach email "
             "that explicitly references harvested signals, then automatically dispatches "
-            "it via Resend email API. The email must reference specific facts from the signals "
+            "it via SendGrid email API. The email must reference specific facts from the signals "
             "— no generic templates."
         ),
         "parameters": {

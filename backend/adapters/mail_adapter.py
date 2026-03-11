@@ -1,5 +1,5 @@
 """
-Mail Adapter — Resend API for transactional email.
+Mail Adapter — SendGrid API for transactional email.
 All email sending logic lives here. Swapping providers = one file change.
 """
 
@@ -16,7 +16,7 @@ from models import EmailAuthFailedError, EmailSendFailedError
 
 logger = logging.getLogger(__name__)
 
-RESEND_API_URL = "https://api.resend.com/emails"
+SENDGRID_API_URL = "https://api.sendgrid.com/v3/mail/send"
 
 
 async def send(
@@ -25,7 +25,7 @@ async def send(
     body: str,
 ) -> dict[str, str]:
     """
-    Send an email via Resend API.
+    Send an email via SendGrid API.
     Returns { sent_at: str, message_id: str }.
     In MOCK_MODE, simulates sending without any external call.
     """
@@ -38,34 +38,34 @@ async def send(
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.post(
-                RESEND_API_URL,
+                SENDGRID_API_URL,
                 headers={
-                    "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                    "Authorization": f"Bearer {settings.SENDGRID_API_KEY}",
                     "Content-Type": "application/json",
                 },
                 json={
-                    "from": settings.RESEND_FROM,
-                    "to": [recipient],
+                    "personalizations": [{"to": [{"email": recipient}]}],
+                    "from": {"email": settings.SENDGRID_FROM, "name": "FireReach"},
                     "subject": subject,
-                    "text": body,
+                    "content": [{"type": "text/plain", "value": body}],
                 },
                 timeout=30,
             )
 
-        if resp.status_code == 403:
-            logger.error("Resend auth failed: %s", resp.text)
+        if resp.status_code in (401, 403):
+            logger.error("SendGrid auth failed: %s", resp.text)
             raise EmailAuthFailedError()
-        if resp.status_code != 200:
-            logger.error("Resend send failed (%d): %s", resp.status_code, resp.text)
+        if resp.status_code not in (200, 202):
+            logger.error("SendGrid send failed (%d): %s", resp.status_code, resp.text)
             raise EmailSendFailedError(email_body=body)
 
-        data = resp.json()
-        message_id = data.get("id", f"<{uuid4()}@resend>")
+        # SendGrid returns 202 with no body on success; use X-Message-Id header
+        message_id = resp.headers.get("X-Message-Id", f"{uuid4()}")
 
     except (httpx.TimeoutException, httpx.ConnectError, OSError) as exc:
-        logger.error("Resend API error: %s", exc)
+        logger.error("SendGrid API error: %s", exc)
         raise EmailSendFailedError(email_body=body) from exc
 
     sent_at = datetime.now(timezone.utc).isoformat()
-    logger.info("Email sent to %s via Resend, id=%s", recipient, message_id)
+    logger.info("Email sent to %s via SendGrid, id=%s", recipient, message_id)
     return {"sent_at": sent_at, "message_id": message_id}

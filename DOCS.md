@@ -87,7 +87,7 @@ This triple-layered approach ensures grounding at the design level (tool gating)
 | Property | Value |
 |----------|-------|
 | **Name** | `tool_outreach_automated_sender` |
-| **Description** | Transforms the account brief into a hyper-personalized outreach email that explicitly references harvested signals, then automatically dispatches it via Resend email API. The email must reference specific facts from the signals — no generic templates. |
+| **Description** | Transforms the account brief into a hyper-personalized outreach email that explicitly references harvested signals, then automatically dispatches it via SendGrid email API. The email must reference specific facts from the signals — no generic templates. |
 
 **Parameters:**
 
@@ -97,7 +97,7 @@ This triple-layered approach ensures grounding at the design level (tool gating)
 | `icp` | string | Yes | The seller's ICP description. |
 | `recipient` | string | Yes | The recipient email address. |
 
-**Returns:** JSON object with `subject` and `body` keys. The email is automatically dispatched via Resend API after passing the confidence gate.
+**Returns:** JSON object with `subject` and `body` keys. The email is automatically dispatched via SendGrid API after passing the confidence gate.
 
 ---
 
