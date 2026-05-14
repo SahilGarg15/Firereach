@@ -1,6 +1,6 @@
 # 🔥 FireReach — Autonomous B2B Outreach Engine
 
-FireReach is an AI-powered outreach engine that harvests live buyer-intent signals for a target company, synthesizes them into an account brief, and generates + sends a hyper-personalized outreach email — all in one autonomous pipeline. Built for [Rabbitt AI](https://rabbitt.ai).
+FireReach is an AI-powered outreach engine that harvests live buyer-intent signals for a target company, synthesizes them into an account brief, and generates + sends a hyper-personalized outreach email — all in one autonomous pipeline.
 
 > **Zero-template policy:** Every email must reference specific, verified signal data. A confidence gate enforces this at the code level, not just the prompt level.
 
@@ -165,15 +165,4 @@ firereach/
 └── README.md
 ```
 
----
 
-## Submission
-
-Submit your completed project here:
-https://docs.google.com/forms/d/e/1FAIpQLSfi7wCK7SO7JAUkUjHIMkpN4dI6YNoqD4XxtMFMmRZ9t_lBpA/viewform
-
----
-
-## License
-
-Built for the Rabbitt AI challenge.
